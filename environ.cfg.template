@@ -1,3 +1,8 @@
 [DATABASE]
 # if 'harisairaghuramveeramallu/earning_transcripts.db' is your database
 FILE_PATH = 'earning_transcripts.db'
+
+[CHATGPT]
+# your openAI organization key and API key
+OPENAI_ORGANIZATION = 'org-xxxxxxxxxxxxxxxxx'
+OPENAI_API_KEY = 'sk-xxxxxxxxxxxxxxxxx'

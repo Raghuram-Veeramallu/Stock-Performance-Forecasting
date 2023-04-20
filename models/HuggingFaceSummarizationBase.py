@@ -20,7 +20,7 @@ class HuggingFaceSummarizationBaseModel(object):
         )
 
     def decode_single(self, tokens, skip_special_tokens = True):
-        return self.tokenizer.decode(tokens, skip_special_tokens=skip_special_tokens)
+        return self.tokenizer.decode(tokens[0], skip_special_tokens=skip_special_tokens)
 
     def encode_batch(self, text_to_encode: list, return_tensors: str = 'pt', padding: bool = True, truncation: bool = True, max_length: int = 1024):
 
@@ -33,11 +33,11 @@ class HuggingFaceSummarizationBaseModel(object):
         )
 
     def decode_batch(self, tokens, skip_special_tokens = True):
-        return self.tokenizer.batch_decode(tokens, skip_special_tokens=skip_special_tokens)
+        return self.tokenizer.batch_decode(tokens[0], skip_special_tokens=skip_special_tokens)
 
     def generate_summaries(self, tokens, min_length: int = 10, max_length: int = 1024):
         return self.model.generate(
-            tokens.input_ids,
+            tokens,
             min_length = min_length,
             max_length = max_length,
         )

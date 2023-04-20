@@ -5,22 +5,25 @@ import configparser
 class DatabaseConnector:
 
     def __init__(self) -> None:
-        self.__get_connection_details()
+        self.connection = None
+        self.__db_file_path = self.__get_connection_details()
         self.cursor = self.create_connection(self.__db_file_path)
 
     # get connection details from .cfg file
     def __get_connection_details(self) -> None:
         self.__config_parser = configparser.ConfigParser()
-        self.__config_parser.read('../environ.cfg')
-        self.__db_file_path = self.__config_parser.get('DATABASE', 'FILE_PATH', fallback='')
-        if self.__db_file_path == '':
+        self.__config_parser.read('./environ.cfg')
+        __db_file_path = self.__config_parser.get('DATABASE', 'FILE_PATH', fallback="")
+        if __db_file_path == '':
             raise ConnectionError('Database filepath required to establish connection.')
+        return __db_file_path
 
     # function to create a sqlite3 connection
     def create_connection(self, conn_string):
-        connection = sqlite3.connect(conn_string)
+        # TODO: conn_string not working. Had to manually replace this.
+        self.connection = sqlite3.connect("/Users/harisairaghuramveeramallu/earning_transcripts.db")
         # create a connection cursor
-        cursor = connection.cursor()
+        cursor = self.connection.cursor()
         return cursor
 
     # execute a query
@@ -46,3 +49,7 @@ class DatabaseConnector:
         else:# query_type == 'read_all':
             query = f'SELECT * FROM {table_name}{condition};'
         return query
+    
+    def __del__(self):
+        if self.connection:
+            self.connection.close()

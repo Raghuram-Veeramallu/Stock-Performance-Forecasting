@@ -1,1 +1,6 @@
 environ.cfg
+__pycache__
+
+# ignore generated data
+generated_data/
+*.csv

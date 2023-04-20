@@ -1,0 +1,3 @@
+[DATABASE]
+# if 'harisairaghuramveeramallu/earning_transcripts.db' is your database
+FILE_PATH = 'earning_transcripts.db'

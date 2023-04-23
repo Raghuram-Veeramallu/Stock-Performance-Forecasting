@@ -9,10 +9,13 @@ class HuggingFaceSummarizationBaseModel(object):
             self.model = AutoModelForSeq2SeqLM.from_pretrained(model_id)
         except OSError:
             raise ModuleNotFoundError(f'Model with name: {self.model_id} does not exists in Huggingface library. Please check the model_id before trying again.')
+    
+    def summarize(self):
+        raise NotImplementedError('Summarize function not implemented')
 
     def encode_single(self, text_to_encode, return_tensors = 'pt', padding = True, truncation = True, max_length = 1024):
-        return self.tokenizer.encode(
-            text_to_encode,
+        return self.tokenizer.encode_plus(
+            text_to_encode[0],
             return_tensors = return_tensors,
             padding = padding,
             truncation = truncation,
@@ -37,7 +40,7 @@ class HuggingFaceSummarizationBaseModel(object):
 
     def generate_summaries(self, tokens, min_length: int = 10, max_length: int = 1024):
         return self.model.generate(
-            tokens,
+            tokens['input_ids'],
             min_length = min_length,
             max_length = max_length,
         )

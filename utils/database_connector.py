@@ -12,7 +12,7 @@ class DatabaseConnector:
     # get connection details from .cfg file
     def __get_connection_details(self) -> None:
         self.__config_parser = configparser.ConfigParser()
-        self.__config_parser.read('./environ.cfg')
+        self.__config_parser.read('./environ.cfg', encoding='utf-8')
         __db_file_path = self.__config_parser.get('DATABASE', 'FILE_PATH', fallback="")
         if __db_file_path == '':
             raise ConnectionError('Database filepath required to establish connection.')
@@ -21,6 +21,7 @@ class DatabaseConnector:
     # function to create a sqlite3 connection
     def create_connection(self, conn_string):
         # TODO: conn_string not working. Had to manually replace this.
+        # self.connnection = sqlite3.connect(f"{conn_string}")
         self.connection = sqlite3.connect("/Users/harisairaghuramveeramallu/earning_transcripts.db")
         # create a connection cursor
         cursor = self.connection.cursor()

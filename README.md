@@ -1,5 +1,7 @@
 # Stock Performance Forecasting using Earning Meeting Transcripts
 
+Python version used: `3.10.9`
+
 ### Setup
 1. Clone the repository
 2. Make a copy of `environ.cfg.template` and renamed it `environ.cfg`.

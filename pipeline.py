@@ -95,7 +95,9 @@ class Pipeline(object):
         return results_df
 
     def sequential_process_for_each_row(self, each_row: tuple):
-        _, data = each_row
+        idx, data = each_row
+
+        print(f"Running for row: {idx}")
 
         run_only_summarization = self.config['run_config']['run_only_summarization']
         run_only_classification = self.config['run_config']['run_only_classification']
@@ -121,7 +123,9 @@ class Pipeline(object):
                 speakers = None
 
         if run_only_summarization:
+            print("Running Summarization")
             summarized_transcripts = self.run_summarization(transcripts)
+            print("Converting them to dataframe")
             response = self.convert_summarization_results_to_df(data, transcripts, speakers)
             return response
         elif run_only_classification:
@@ -132,12 +136,17 @@ class Pipeline(object):
             summarization_dataframe = pd.DataFrame([data]).reset_index()
             summarization_dataframe.columns = ['symbol', 'year', 'quarter', 'date', 'speakers', 'summarized_transcript']
             summarization_dataframe = summarization_dataframe.explode(['speakers', 'summarized_transcript']).reset_index()
+            print("Running classification")
             predicted_labels = self.run_classification(summarized_transcripts, speakers)
+            print("Converting results to dataframes")
             prediction_df = self.convert_classification_results_to_df(summarization_dataframe, predicted_labels)
             return prediction_df
         else:
+            print("Running Summarization")
             summarized_transcripts = self.run_summarization(transcripts)
+            print("Running Classification")
             predicted_labels = self.run_classification(summarized_transcripts, speakers)
+            print("Converting results to dataframes")
             summarized_df = self.convert_summarization_results_to_df(data, transcripts, speakers)
             prediction_df = self.convert_classification_results_to_df(summarized_df, predicted_labels)
             return prediction_df
@@ -175,7 +184,7 @@ class Pipeline(object):
         if (not run_only_classification):
             if self.config['processing_config']['parallellize_runs']:
                 # pool of processess
-                pool = Pool()
+                pool = Pool(self.config['processing_config']['workers'])
                 results = pool.map(self.sequential_process_for_each_row, self.transcript_data.iterrows())
             else:
                 results = []
@@ -187,7 +196,7 @@ class Pipeline(object):
             grouped_df = summarization_dataframe.groupby(['symbol', 'year', 'quarter', 'date'])[['speakers', 'summarized_transcript']].agg(list)
             if self.config['processing_config']['parallellize_runs']:
                 # pool of processess
-                pool = Pool()
+                pool = Pool(self.config['processing_config']['workers'])
                 results = pool.map(self.sequential_process_for_each_row, grouped_df.iterrows())
             else:
                 results = []

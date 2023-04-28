@@ -22,7 +22,7 @@ class DatabaseConnector:
     def create_connection(self, conn_string):
         # TODO: conn_string not working. Had to manually replace this.
         # self.connnection = sqlite3.connect(f"{conn_string}")
-        self.connection = sqlite3.connect("/Users/harisairaghuramveeramallu/earning_transcripts.db")
+        self.connection = sqlite3.connect("/home/csci5525/veera047/spf/database/earning_transcripts.db")
         # create a connection cursor
         cursor = self.connection.cursor()
         return cursor
@@ -48,7 +48,7 @@ class DatabaseConnector:
         if (query_type == 'read') and (columns != None):
             query = f'SELECT {columns} FROM {table_name}{condition};'
         else:# query_type == 'read_all':
-            query = f'SELECT * FROM {table_name}{condition};'
+            query = f'SELECT * FROM {table_name}{condition} LIMIT 5;'
         return query
     
     def __del__(self):

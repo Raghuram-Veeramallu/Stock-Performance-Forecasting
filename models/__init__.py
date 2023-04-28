@@ -2,6 +2,7 @@ from .HuggingFaceSummarizationBase import HuggingFaceSummarizationBaseModel
 from .HumanCenteredSummarizationPegasus import HumanCenteredSummarizationPegasus
 from .Gpt2SummarizationBase import Gpt2SummarizationBase
 from .TextDavinci003Gpt2 import TextDavinci003Gpt2
+from .FbBartLargeTradeSummarization import FbBartLargeTradeSummarization
 
 from .HuggingFaceClassifierBase import HuggingFaceClassifierBase
 from .Dunn2BC22ClassifierDistilBert import Dunn2BC22ClassifierDistilBert
@@ -10,6 +11,7 @@ from .Dunn2BC22ClassifierDistilBert import Dunn2BC22ClassifierDistilBert
 SUMMARIZATION_MODEL_MAPPING = {
     'human_centered_pegasus': HumanCenteredSummarizationPegasus,
     'gpt2_text_davinci_003': TextDavinci003Gpt2,
+    'fb_bart_large_trade': FbBartLargeTradeSummarization,
 }
 
 CLASSIFICATION_MODEL_MAPPING = {

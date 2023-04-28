@@ -104,12 +104,12 @@ class Pipeline(object):
 
         return predicted_labels
 
-    def convert_summarization_results_to_df(self, data, transcripts, speakers):
+    def convert_summarization_results_to_df(self, data, transcripts, summarized_transcripts, speakers):
         reference_data = pd.DataFrame(data[['symbol', 'year', 'quarter', 'date']]).T
         if speakers is not None:
-            summarized_transcripts_df = pd.DataFrame(list(zip(speakers, transcripts)), columns=['speakers', 'summarized_transcript'])
+            summarized_transcripts_df = pd.DataFrame(list(zip(speakers, transcripts, summarized_transcripts)), columns=['speakers', 'original_transcript', 'summarized_transcript'])
         else:
-            summarized_transcripts_df = pd.DataFrame(transcripts, columns=['summarized_transcript'])
+            summarized_transcripts_df = pd.DataFrame(list(zip(transcripts, summarized_transcripts)), columns=['original_transcript', 'summarized_transcript'])
 
         summarized_df = pd.concat([reference_data, summarized_transcripts_df], axis=1)
         summarized_df[summarized_df.columns[:4]] = summarized_df[summarized_df.columns[:4]].ffill()
@@ -148,7 +148,7 @@ class Pipeline(object):
 
         if run_only_summarization:
             summarized_transcripts = self.run_summarization(transcripts)
-            response = self.convert_summarization_results_to_df(data, transcripts, speakers)
+            response = self.convert_summarization_results_to_df(data, transcripts, summarized_transcripts, speakers)
             return response
         elif run_only_classification:
             # retrieve the summarization results
@@ -164,7 +164,7 @@ class Pipeline(object):
         else:
             summarized_transcripts = self.run_summarization(transcripts)
             predicted_labels = self.run_classification(summarized_transcripts, speakers)
-            summarized_df = self.convert_summarization_results_to_df(data, transcripts, speakers)
+            summarized_df = self.convert_summarization_results_to_df(data, transcripts, summarized_transcripts, speakers)
             prediction_df = self.convert_classification_results_to_df(summarized_df, predicted_labels)
             return prediction_df
 

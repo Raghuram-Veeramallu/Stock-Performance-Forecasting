@@ -75,7 +75,6 @@ class DatabaseConnector:
             classification_model = classification_model,
             current_date = date,
         )
-        print(query)
         return self.execute_query(query)
 
     def save_df_to_db(self, df, table_name, if_exists='replace', index=False):

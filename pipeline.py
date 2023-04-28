@@ -45,7 +45,7 @@ class Pipeline(object):
         database_connector.insert_into_metadata_table(
             table_name = new_table_name,
             method_name = self.config['run_config']['method_name'],
-            author = self.config['run_config']['author'],
+            author = str(self.config['run_config']['author']),
             summarization_model = self.config['summarization']['model_name'],
             classification_model = self.config['classification']['model_name'],
             date = str(datetime.now()),

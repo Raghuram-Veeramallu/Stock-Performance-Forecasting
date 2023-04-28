@@ -4,9 +4,9 @@ import configparser
 
 class DatabaseConnector:
 
-    __CREATE_PREDICTIONS_METADATA_SQL = './sql/create_metadata_table.sql'
-    __CREATE_PREDICTIONS_TABLE = './sql/create_predicitons_table.sql'
-    __INSERT_INTO_PREDICTIONS_TABLE = '/sql/insert_into_metadata_table.sql'
+    __CREATE_PREDICTIONS_METADATA_SQL = './utils/sql/create_metadata_table.sql'
+    __CREATE_PREDICTIONS_TABLE = './utils/sql/create_predicitons_table.sql'
+    __INSERT_INTO_PREDICTIONS_TABLE = './utils/sql/insert_into_metadata_table.sql'
 
     def __init__(self) -> None:
         self.connection = None
@@ -61,12 +61,12 @@ class DatabaseConnector:
         elif query_type == 'max_id_metadata':
             query = 'SELECT MAX(id) FROM predictions_metadata;'
         else:# query_type == 'read_all':
-            query = f'SELECT * FROM {table_name}{condition};'
+            query = f'SELECT * FROM {table_name}{condition} LIMIT 1;'
         return query
 
     def insert_into_metadata_table(self, table_name, method_name, author, summarization_model, classification_model, date):
         with open(self.__INSERT_INTO_PREDICTIONS_TABLE, 'r') as f:
-            query = f.read(f)
+            query = f.read()
         query = query.format(
             table_name = table_name,
             method_name = method_name,
@@ -75,6 +75,7 @@ class DatabaseConnector:
             classification_model = classification_model,
             current_date = date,
         )
+        print(query)
         return self.execute_query(query)
 
     def save_df_to_db(self, df, table_name, if_exists='replace', index=False):

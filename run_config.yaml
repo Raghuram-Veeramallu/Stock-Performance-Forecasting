@@ -12,7 +12,7 @@ data_preprocessing_config:
 run_config:  
   run_only_summarization: False
   run_only_classification: True
-  author: 'Hari V'
+  author: 'Hari'
   method_name: 'hari_base_test'
 
 summarization:

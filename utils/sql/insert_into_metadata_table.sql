@@ -7,10 +7,10 @@ INSERT INTO predictions_metadata (
 	"date"
 )
 VALUES (
-	{table_name},
-	{method_name},
-	{author},
-	{summarization_model},
-	{classification_model},
-	{current_date}
+	'{table_name}',
+	'{method_name}',
+	'{author}',
+	'{summarization_model}',
+	'{classification_model}',
+	'{current_date}'
 );

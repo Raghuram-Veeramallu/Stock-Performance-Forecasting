@@ -1,5 +1,5 @@
 import os
-from datetime import date
+from datetime import date, datetime
 import re
 from multiprocessing import Pool
 
@@ -12,7 +12,7 @@ import models
 class Pipeline(object):
 
     __POSSIBLE_DATA_FETCHES = {
-        'transcript', 'company'
+        'transcript', 'company', 'label', 'price'
     }
 
     def __init__(self, config_filepath: str) -> None:
@@ -28,6 +28,32 @@ class Pipeline(object):
             raise Exception('Not a possible data fetch operation')
         
         return response
+    
+    def persist_data_to_database(self, dataframe: pd.DataFrame):
+        database_connector = DatabaseConnector()
+        # creating metadata table if not exists
+        metadata_query = database_connector.generate_query(query_type='create_pred_metadata_table')
+        _ = database_connector.execute_query(metadata_query)
+
+        # retrieve the previous max index
+        max_idx_query = database_connector.generate_query(query_type='max_id_metadata')
+        id = database_connector.execute_query(max_idx_query)[0]
+        id = id + 1 if id is not None else 1
+        new_table_name = f'predictions_{str(id)}'
+
+        # create an entry in metadata table and retrieve the id
+        database_connector.insert_into_metadata_table(
+            table_name = new_table_name,
+            method_name = self.config['run_config']['method_name'],
+            author = self.config['run_config']['author'],
+            summarization_model = self.config['summarization']['model_name'],
+            classification_model = self.config['classification']['model_name'],
+            date = str(datetime.now()),
+        )
+
+        # persist data into database
+        database_connector.save_df_to_db(dataframe, new_table_name, index=True)
+
 
     # preliminary cleaning step before performing the pipelining steps
     def preliminary_cleaning_of_transcripts(self, data: pd.Series) -> pd.Series:
@@ -156,7 +182,10 @@ class Pipeline(object):
         prediction_model_name = self.config['classification']['model_name']
         filename = f'{prediction_model_name}_classification_{str(date.today())}.csv'
         filepth = os.path.join(self.config['classification']['classification_output_filepath'], filename)
+        # file persist
         file_io_utils.export_data_frame_to_csv(prediction_df, filepth)
+        # db persist
+        self.persist_data_to_database(prediction_df)
 
     def persist_outputs(self, results, forced_summarized_res=False):
         if forced_summarized_res:

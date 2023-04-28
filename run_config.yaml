@@ -12,6 +12,8 @@ data_preprocessing_config:
 run_config:  
   run_only_summarization: False
   run_only_classification: True
+  author: 'Hari V'
+  method_name: 'hari_base_test'
 
 summarization:
   model_name: 'human_centered_pegasus'

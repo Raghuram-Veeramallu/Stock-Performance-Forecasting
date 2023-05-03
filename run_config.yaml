@@ -2,6 +2,10 @@
 processing_config:
   parallellize_runs: False
   workers: 10
+  chunked: True
+  # these are considered only when chunked is true
+  offset: 2
+  limit: 3
 
 data_preprocessing_config:
   run_per_speaker: True
@@ -10,10 +14,10 @@ data_preprocessing_config:
 
 # either one of these should be True, both True will only result in running them completely.
 run_config:  
-  run_only_summarization: False
+  run_only_summarization: True
   run_only_classification: False
   author: 'Hari'
-  method_name: 'hari_base_test'
+  method_name: 'pegasus_base'
 
 summarization:
   model_name: 'human_centered_pegasus'

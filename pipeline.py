@@ -3,6 +3,7 @@ from datetime import date, datetime
 import re
 from multiprocessing import Pool
 
+from tqdm import tqdm
 import pandas as pd
 
 from utils.database_connector import DatabaseConnector
@@ -16,13 +17,19 @@ class Pipeline(object):
     }
 
     def __init__(self, config_filepath: str) -> None:
-        self.transcript_data  = self.__retrieve_data_from_database(data_type='transcript')
         self.config = file_io_utils.load_configs_from_yaml(config_filepath)
+        self.transcript_data  = self.__retrieve_data_from_database(data_type='transcript')
 
     def __retrieve_data_from_database(self, data_type='transcript', fetch_results_as=pd.DataFrame):
         if data_type in self.__POSSIBLE_DATA_FETCHES:
             database_connector = DatabaseConnector()
-            query = database_connector.generate_query(data_type)
+            if self.config['processing_config']['chunked']:
+                offset = self.config['processing_config']['offset']
+                limit = self.config['processing_config']['limit']
+                condition = f'LIMIT {limit} OFFSET {offset}'
+            else:
+                condition = ''
+            query = database_connector.generate_query(data_type, condition)
             response = database_connector.execute_query(query, return_type=fetch_results_as)
         else:
             raise Exception('Not a possible data fetch operation')
@@ -89,7 +96,7 @@ class Pipeline(object):
         summarizarion_model_class = models.SUMMARIZATION_MODEL_MAPPING[summarization_model_name]
         summarization_model = summarizarion_model_class()
         summarized_transcripts = []
-        for each_transcript in transcripts:
+        for each_transcript in tqdm(transcripts, desc="Running for each speaker"):
             summarized_transcripts.append(summarization_model.summarize(self.config, [each_transcript]))
 
         return summarized_transcripts
@@ -172,7 +179,12 @@ class Pipeline(object):
         file_io_utils.create_folder_if_not_exists(self.config['summarization']['summarization_output_filepath'])
         summarized_df = pd.concat(results, axis=0)
         summarization_model_name = self.config['summarization']['model_name']
-        filename = f'{summarization_model_name}_summarized_{str(date.today())}.csv'
+        if self.config['processing_config']['chunked']:
+            offset = self.config['processing_config']['offset']
+            limit = self.config['processing_config']['limit']
+            filename = f'{summarization_model_name}_summarized_{str(date.today())}_off_{offset}_lim_{limit}.csv'
+        else:
+            filename = f'{summarization_model_name}_summarized_{str(date.today())}.csv'
         filepth = os.path.join(self.config['summarization']['summarization_output_filepath'], filename)
         file_io_utils.export_data_frame_to_csv(summarized_df, filepth)
 
@@ -208,7 +220,7 @@ class Pipeline(object):
                 results = pool.map(self.sequential_process_for_each_row, self.transcript_data.iterrows())
             else:
                 results = []
-                for each_row in self.transcript_data.iterrows():
+                for each_row in tqdm(self.transcript_data.iterrows(), desc="Running for each transcript"):
                     results.append(self.sequential_process_for_each_row(each_row))
         else:
             summarization_filepath = self.config['classification']['summarization_input_filepath']

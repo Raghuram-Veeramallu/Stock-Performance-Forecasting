@@ -4,9 +4,16 @@ processing_config:
   workers: 10
 
 data_preprocessing_config:
-  run_per_speaker: False
-  persist_per_speaker_transcripts: False
+  run_per_speaker: True
+  persist_per_speaker_transcripts: True
   per_speaker_transcript_file_path: './generated_data/per_speaker_transcripts/'
+
+# either one of these should be True, both True will only result in running them completely.
+run_config:  
+  run_only_summarization: False
+  run_only_classification: False
+  author: 'Hari'
+  method_name: 'hari_base_test'
 
 summarization:
   model_name: 'human_centered_pegasus'
@@ -17,5 +24,13 @@ summarization:
   generation_min_length: 10
   generation_max_length: 512
   skip_special_tokens: True
+  persist_summarization_results: True
+  summarization_output_filepath: './generated_data/generated_summarizations/'
 
-sentiment_analysis:
+classification:
+  model_name: 'dunn2BC22_distilbert'
+  per_speaker_classification: True
+  # only used when run_only_classification is true
+  summarization_input_filepath: './generated_data/generated_summarizations/human_centered_pegasus_summarized_2023-04-22.csv'
+  classification_output_filepath: './generated_data/generated_predictions/'
+  max_length: 512
